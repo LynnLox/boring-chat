@@ -1,6 +1,7 @@
 #include "user.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 #define MAX_NAME_LEN 15
 
@@ -18,7 +19,7 @@ void init_users_list(int num)
 int find_name(char *name)
 {
 	for(int i = 0; i < cur; ++i)
-		if(!strcmp(users[i], name))
+		if(!strcmp(user_list[i], name))
 			return i;
 	return -1;
 }
@@ -39,18 +40,18 @@ int add_user(char *name)
 	if (find_name(name) == -1)
 		return -3;
 
-	users[cur++] = name;
+	user_list[cur++] = name;
 	return 0;
 }
 
 void del_user(char *name)
 {
 	if (!cur)
-		return -1;
+		return;
 	int ind = find_name(name);
 	if (ind == -1)
 		return;
-	swap_users(&users[ind], &users[cur]);
+	swap_users(&user_list[ind], &user_list[cur]);
 	cur--;
 }
 

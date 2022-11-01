@@ -20,10 +20,10 @@ void add_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int newfd)
 {
 	if (*fd_cnt == *fd_size) {
 		*fd_size *= 2;
-		*pfds = realloc(*pfds, sizeof(**pfds), *fd_size);
+		*pfds = realloc(*pfds, sizeof(**pfds) * *fd_size);
 	}
 	(*pfds)[*fd_cnt].fd = newfd;
-	(*pfds)[*fd_cnt].event = POLLIN;
+	(*pfds)[*fd_cnt].events = POLLIN;
 	(*fd_cnt)++;
 }
 
@@ -35,7 +35,7 @@ void rem_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int i)
 
 int main()
 {
-	struct addrinfo *list = init_addrinfo(AI_PASSIVE, AI_UNSPEC, SOCK_STREAM, NULL, PORT);
+	struct addrinfo *list = init_addrinfos(AI_PASSIVE, AF_UNSPEC, SOCK_STREAM, NULL, PORT);
 	int sockfd = bind_socket(list);
 	if (sockfd == -1) {
 		fprintf(stderr, "No valid socket found\n");
@@ -52,6 +52,8 @@ int main()
 	struct pollfd *pfds = malloc(sizeof(*pfds) * fd_size);
 	add_pfd(&pfds, &fd_cnt, &fd_size, sockfd);
 
+	init_users_list(fd_size);
+
 	while (1) {
 		int poll_cnt = poll(pfds, fd_cnt, -1);
 		if (poll_cnt == -1) {
@@ -67,29 +69,28 @@ int main()
 					if (connfd == -1) {
 						perror("accept");
 					} else {
-						add_pfds(&pfds, &fd_cnt, &fd_size, connfd);
+						add_pfd(&pfds, &fd_cnt, &fd_size, connfd);
 						char remoteIP[INET6_ADDRSTRLEN];
 						printf("pollserver: new connection from %s on socket %d\n",
-								inet_ntop(ss.ss_family, (struct sockaddr*)&ss,
-									get_in_addr(struct sockaddr*)&ss, remoteIP,
+								inet_ntop(ss.ss_family,	get_in_addr((struct sockaddr*)&ss), remoteIP,
 									INET6_ADDRSTRLEN), connfd);
 					}
 				} else {
-					char buf[MAX_MSG_LEN];
-					int nbytes = recv(pfds[i].fd, buf, sizeof(buf));
+					char buf[MSG_MAX_LEN];
+					int nbytes = recv(pfds[i].fd, buf, sizeof(buf), 0);
 					int senderfd = pfds[i].fd;
 					if(!nbytes) {
 						printf("pollserver: connection closed by socket %d\n", senderfd);
 						close(pfds[i].fd);
 					} else {
-						int status = add_name(buf);
+						int status = add_user(buf);
 						char msg[20];
 						if (!status)
-							msg = "success";
+							strcpy(msg, "success");
 						else if (status == -1)
-							msg = "capfull";
+							strcpy(msg, "capfull");
 						else if (status == -2)
-							msg = "exists";
+							strcpy(msg, "exists");
 						if (send(senderfd, msg, 15, 0) == -1)
 							perror("send");
 					}

@@ -1,22 +1,23 @@
 #include "net.h"
 
 #include <string.h>
+#include <netdb.h>
 
 void *get_in_addr(struct sockaddr *sa)
 {
-	return sa->ai_family == AF_INET ? &(((struct sockaddr_in*)sa)->sin_addr)
+	return sa->sa_family == AF_INET ? &(((struct sockaddr_in*)sa)->sin_addr)
 		: &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-struct addrinfo *init_addrinfos(int flag, int family, int socktype,
+struct addrinfo *init_addrinfos(int flags, int family, int socktype,
 		const char *node, const char *port)
 {
 	struct addrinfo hints, *list;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = family;
 	hints.ai_socktype = socktype;
-	if (flag != -1)
-		hints.ai_flag = flag;
+	if (flags != -1)
+		hints.ai_flags = flags;
 	return !getaddrinfo(node, port, &hints, &list) ? list : NULL;
 }
 

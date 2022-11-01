@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 
 void *get_in_addr(struct sockaddr *sa);
-struct addrinfo *init_addrinfos(int flag, int family, int socktype,
+struct addrinfo *init_addrinfos(int flags, int family, int socktype,
 		const char *node, const char *port);
 int bind_socket(struct addrinfo *list);
 
