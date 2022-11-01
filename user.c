@@ -14,6 +14,7 @@ void init_users_list(int num)
 	user_list = malloc(sizeof(char*) * num);
 	for (int i = 0; i < num; ++i)
 		user_list[i] = malloc(sizeof(char) * MAX_NAME_LEN);
+	cap = num;
 }
 
 int find_name(char *name)
@@ -37,7 +38,7 @@ int add_user(char *name)
 		return -1;
 	if (strlen(name) > MAX_NAME_LEN)
 		return -2;
-	if (find_name(name) == -1)
+	if (find_name(name) != -1)
 		return -3;
 
 	user_list[cur++] = name;

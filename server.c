@@ -86,11 +86,13 @@ int main()
 						int status = add_user(buf);
 						char msg[20];
 						if (!status)
-							strcpy(msg, "success");
+							strcpy(msg, "success\n");
 						else if (status == -1)
-							strcpy(msg, "capfull");
+							strcpy(msg, "capfull\n");
 						else if (status == -2)
-							strcpy(msg, "exists");
+							strcpy(msg, "long\n");
+						else if (status == -3)
+							strcpy(msg, "exists\n");
 						if (send(senderfd, msg, 15, 0) == -1)
 							perror("send");
 					}
