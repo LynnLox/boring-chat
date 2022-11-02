@@ -21,26 +21,36 @@ struct addrinfo *init_addrinfos(int flags, int family, int socktype,
 	return !getaddrinfo(node, port, &hints, &list) ? list : NULL;
 }
 
-int bind_socket(struct addrinfo *list)
+struct addrinfo *bind_socket(struct addrinfo *list, int *sockfd, const int is_serv)
 {
-	struct addrinfo *p;
-	int sockfd;
-	for (p = list; p; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+	for (struct addrinfo *p = list; p; p = p->ai_next) {
+		if ((*sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
 			continue;
-		int yes = 1;
-		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)))
-			return -2;
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-			continue;
-		break;
+		if (is_serv) {
+			int yes = 1;
+			if (setsockopt(*sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))) {
+				*sockfd = -1;
+				return NULL;
+			}
+			if (bind(*sockfd, p->ai_addr, p->ai_addrlen) == -1)
+				continue;
+		} else {
+			if (connect(*sockfd, p->ai_addr, p->ai_addrlen) == -1)
+				continue;
+		}
+		return p;
 	}
 
 	/* nothing in the list was valid */
-	if (!p)
-		sockfd = -1;
-	
+
+	/* This is done for server only, since the server depends on sock_fd
+	 * value for error checking, while the client looks at the struct
+	 * addrinfo returned. It is possible for the client to return NULL
+	 * despite having got a socket(), if connect() then failed.
+	 */
+	if (is_serv)
+		*sockfd = -1;
 	freeaddrinfo(list);
 
-	return sockfd;
+	return NULL;
 }

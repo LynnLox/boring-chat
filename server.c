@@ -36,7 +36,8 @@ void rem_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int i)
 int main()
 {
 	struct addrinfo *list = init_addrinfos(AI_PASSIVE, AF_UNSPEC, SOCK_STREAM, NULL, PORT);
-	int sockfd = bind_socket(list);
+	int sockfd;
+	bind_socket(list, &sockfd, 1);
 	if (sockfd == -1) {
 		fprintf(stderr, "No valid socket found\n");
 		exit(1);
