@@ -1,3 +1,4 @@
+#include "client.h"
 #include "net.h"
 #include "user.h"
 
@@ -11,6 +12,39 @@
 
 #define PORT "9034"
 #define MSG_LEN 256
+#define NAME_LEN 15
+
+/* calling this disgrace a "form" is a stretch, but I am bad with names */
+void login_form(char *name)
+{
+	printf("Enter preferred alias: ");
+	fgets(name, NAME_LEN, stdin);
+}
+
+void login(const int sockfd)
+{
+	char name[MSG_LEN], res[20];
+	int flag = 1;
+	while (flag) {
+		login_form(name);
+		if (send(sockfd, name, strlen(name), 0) == -1) {
+			perror("send");
+			exit(1);
+		}
+		bzero(res, 20);
+		if (recv(sockfd, res, 20, 0) == -1) {
+			perror("recv");
+			exit(1);
+		}
+		if (!strcmp(res, "exists\n"))
+			fprintf(stderr, "Sorry, the alias is taken. Please choose another.\n\n");
+		else if (!strcmp(res, "long\n"))
+			fprintf(stderr, "The alias is too long. Please choose a shorter one.\n\n");
+		else
+			flag = 0;
+	}
+	printf("The alias is assigned.\n\n");
+}
 
 int main(int argc, char **argv)
 {
@@ -29,6 +63,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	
+	login(sockfd);
+
 	char buf[MSG_LEN];
 	while (1) {
 		printf("> ");
