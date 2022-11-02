@@ -41,7 +41,8 @@ int add_user(char *name)
 	if (find_name(name) != -1)
 		return -3;
 
-	user_list[cur++] = name;
+	strcpy(user_list[cur], name);
+	cur++;
 	return 0;
 }
 
