@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 
 #define PORT "9034"
+#define MSG_LEN 256
 
 int main(int argc, char **argv)
 {
@@ -27,9 +28,16 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Socket could not connect to server\n");
 		exit(1);
 	}
-
+	
+	char buf[MSG_LEN];
 	while (1) {
-		/* placeholder */
+		printf("> ");
+		fgets(buf, MSG_LEN, stdin);
+		if (send(sockfd, buf, strlen(buf), 0) == -1) {
+			perror("send");
+			exit(1);
+		}
+		bzero(buf, MSG_LEN);
 	}
 
 	return 0;
