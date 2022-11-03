@@ -25,6 +25,14 @@
  * "name" refers to the alias of the user who sent the message
  * "message" is the actual text that the user sends
  * ':' is always necessary
+ *
+ * RULES IN RE SIZING:
+ * 1. in client messages, "sub" may not exceed 7 characters.
+ * 2. again in client messages, "val" may not exceed 15 characters (length of
+ * name, presently)
+ * 3. the max length of "message" in user message is 250 characters
+ * 4. no '\n'. all next-line characters will be ruthlessly replaced by null
+ * terminators.
  */
 
 enum client_msg_sub {
