@@ -7,6 +7,15 @@
 
 #define SUB_MAX_LEN 10
 
+void trim_str(char *str)
+{
+	for (int i = 0; i < strlen(str) && str[i] != '\0'; ++i)
+		if (str[i] == '\n') {
+			str[i] = '\0';
+			break;
+		}
+}
+
 enum client_msg_sub map_enum_str(char *msg, int msg_len, int *cur_len)
 {
 	char sub_str[SUB_MAX_LEN];
@@ -39,14 +48,11 @@ int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_
 	if (cur_len + src_len >= msg_len)
 		return -1;
 
-	for (int i = 0; i < src_len; ++i) {
-		if (src[i] == '\n')
-			msg[cur_len + i] = '\0';
-		else
-			msg[cur_len + i] = src[i];
-		if (msg[cur_len + i] == '\0')
-			break;
-	}
+	int i;
+	for (i = 0; src[i] != '\0'; ++i)
+		msg[cur_len + i] = src[i];
+	msg[cur_len + i] = '\0';
+
 	return 0;
 }
 
@@ -54,14 +60,10 @@ int unpack_client_msg(char *msg, int msg_len, char *dst, int dst_len)
 {
 	int i, j;
 	enum client_msg_sub sub = map_enum_str(msg, msg_len, &i);
-	for (j = 0; i < msg_len && j < dst_len; ++i, ++j) {
-		if (msg[i] == '\n')
-			dst[j] = '\0';
-		else
-			dst[j] = msg[i];
-		if (dst[j] == '\0')
-			break;
-	}
+
+	for (j = 0; msg[i] != '\0'; ++j, ++i)
+		dst[j] = msg[i];
+	dst[j] = '\0';
 
 	if (dst[j] != '\0')
 		dst[j] = '\0';
