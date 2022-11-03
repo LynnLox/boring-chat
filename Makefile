@@ -1,5 +1,5 @@
-server : server.o user.o net.o
-	cc server.o user.o net.o -o server
+server : server.o user.o net.o message.o
+	cc server.o user.o net.o message.o -o server
 
 client : client.o user.o net.o
 	cc client.o user.o net.o -o client
@@ -16,5 +16,8 @@ user.o : user.c user.h
 net.o : net.c net.h
 	cc -c net.c
 
+message.o : message.c message.h
+	cc -c message.c
+
 clean :
-	rm server.o client.o user.o net.o
+	rm server.o client.o user.o net.o message.o
