@@ -2,12 +2,12 @@ server : server.o user.o net.o message.o
 	cc server.o user.o net.o message.o -o server
 
 client : client.o user.o net.o
-	cc client.o user.o net.o -o client
+	cc client.o user.o net.o message.o -o client
 
 server.o : server.c server.h net.h user.h message.h
 	cc -c server.c
 
-client.o : client.c net.h user.h
+client.o : client.c net.h user.h client.h message.h
 	cc -c client.c
 
 user.o : user.c user.h

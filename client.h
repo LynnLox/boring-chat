@@ -4,6 +4,6 @@
 #define CLIENT
 
 void login_form(char *name);
-void login(const int sockfd);
+char *login(const int sockfd);
 
 #endif
