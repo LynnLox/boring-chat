@@ -1,5 +1,6 @@
 #include "net.h"
 #include "user.h"
+#include "message.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,11 @@
 
 #define PORT "9034"
 #define BACKLOG 10
-#define MSG_MAX_LEN 15
+
+#define CON_LEN 250
+#define PAD_LEN 2
+#define VAL_LEN 15
+#define USR_MSG_LEN (CON_LEN + PAD_LEN + VAL_LEN)
 
 void add_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int newfd)
 {
@@ -77,24 +82,29 @@ int main()
 									INET6_ADDRSTRLEN), connfd);
 					}
 				} else {
-					char buf[MSG_MAX_LEN];
-					int nbytes = recv(pfds[i].fd, buf, sizeof(buf), 0);
+					char buf[CON_LEN], msg[USR_MSG_LEN];
+					int nbytes = recv(pfds[i].fd, msg, sizeof(msg), 0);
 					int senderfd = pfds[i].fd;
 					if(!nbytes) {
 						printf("pollserver: connection closed by socket %d\n", senderfd);
 						close(pfds[i].fd);
 					} else {
+						printf("%s\n", msg);
+						unpack_client_msg(msg, buf);
+						printf("%s\n", buf);
 						int status = add_user(buf);
-						char msg[20];
+						char res[VAL_LEN];
 						if (!status)
-							strcpy(msg, "success\n");
+							strcpy(res, "success");
 						else if (status == -1)
-							strcpy(msg, "capfull\n");
+							strcpy(res, "capfull");
 						else if (status == -2)
-							strcpy(msg, "long\n");
+							strcpy(res, "long");
 						else if (status == -3)
-							strcpy(msg, "exists\n");
-						if (send(senderfd, msg, 15, 0) == -1)
+							strcpy(res, "exists");
+						trim_str(res);
+						pack_client_msg(msg, res, CNAME);
+						if (send(senderfd, msg, strlen(msg), 0) == -1)
 							perror("send");
 					}
 				}
