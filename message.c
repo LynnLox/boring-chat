@@ -20,8 +20,10 @@ enum client_msg_sub map_enum_str(char *msg, int *cur_len)
 {
 	char sub_str[SUB_MAX_LEN];
 	*cur_len = 2; //1 for '!' + 1 for ':'
-	for (int i = 1; msg[i] != ':'; ++i)
-		sub_str[i - 1] == msg[i];
+	int i;
+	for (i = 1; msg[i] != ':'; ++i)
+		sub_str[i - 1] = msg[i];
+	sub_str[i - 1] = '\0';
 	if (!strcmp(sub_str, "cname")) {
 		*cur_len += 5;
 		return CNAME;
@@ -59,9 +61,6 @@ int unpack_client_msg(char *msg, char *dst)
 	for (j = 0; msg[i] != '\0'; ++j, ++i)
 		dst[j] = msg[i];
 	dst[j] = '\0';
-
-	if (dst[j] != '\0')
-		dst[j] = '\0';
 	return 0;	
 }
 
