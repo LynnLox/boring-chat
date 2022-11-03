@@ -33,10 +33,10 @@ enum client_msg_sub {
 };
 
 void trim_str(char *str);
-enum client_msg_sub map_enum_str(char *msg, int msg_len, int *cur_len);
-int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_msg_sub sub);
-int unpack_client_msg(char *msg, int msg_len, char *dst, int dst_len); 
-int pack_usr_msg(char *msg, char *src, char *name, int msg_len);
+enum client_msg_sub map_enum_str(char *msg, int *cur_len);
+int pack_client_msg(char *msg, char *src, enum client_msg_sub sub);
+int unpack_client_msg(char *msg, char *dst);
+int pack_usr_msg(char *msg, char *src, char *name);
 void unpack_usr_msg(char *msg, char *dst, char *name);
 
 #endif

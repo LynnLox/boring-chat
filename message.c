@@ -16,11 +16,11 @@ void trim_str(char *str)
 		}
 }
 
-enum client_msg_sub map_enum_str(char *msg, int msg_len, int *cur_len)
+enum client_msg_sub map_enum_str(char *msg, int *cur_len)
 {
 	char sub_str[SUB_MAX_LEN];
 	*cur_len = 2; //1 for '!' + 1 for ':'
-	for (int i = 1; i < msg_len && msg[i] != ':'; ++i)
+	for (int i = 1; msg[i] != ':'; ++i)
 		sub_str[i - 1] == msg[i];
 	if (!strcmp(sub_str, "cname")) {
 		*cur_len += 5;
@@ -30,11 +30,8 @@ enum client_msg_sub map_enum_str(char *msg, int msg_len, int *cur_len)
 	return FAILURE;
 }
 
-int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_msg_sub sub)
+int pack_client_msg(char *msg, char *src, enum client_msg_sub sub)
 {
-	if (msg_len < src_len)
-		return -1;
-
 	msg[0] = '!';
 	switch (sub) {
 		case CNAME:
@@ -45,8 +42,6 @@ int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_
 	}
 
 	int cur_len = strlen(msg);
-	if (cur_len + src_len >= msg_len)
-		return -1;
 
 	int i;
 	for (i = 0; src[i] != '\0'; ++i)
@@ -56,10 +51,10 @@ int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_
 	return 0;
 }
 
-int unpack_client_msg(char *msg, int msg_len, char *dst, int dst_len)
+int unpack_client_msg(char *msg, char *dst)
 {
 	int i, j;
-	enum client_msg_sub sub = map_enum_str(msg, msg_len, &i);
+	enum client_msg_sub sub = map_enum_str(msg, &i);
 
 	for (j = 0; msg[i] != '\0'; ++j, ++i)
 		dst[j] = msg[i];
@@ -70,11 +65,8 @@ int unpack_client_msg(char *msg, int msg_len, char *dst, int dst_len)
 	return 0;	
 }
 
-int pack_usr_msg(char *msg, char *src, char *name, int msg_len)
+int pack_usr_msg(char *msg, char *src, char *name)
 {
-	if (strlen(name) + strlen(src) + 2 > msg_len)
-		return -1;
-
 	msg[0] = '@';
 	int i;
 	for (i = 0; name[i] != '\0'; ++i)
