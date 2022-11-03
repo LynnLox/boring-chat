@@ -4,7 +4,7 @@ server : server.o user.o net.o message.o
 client : client.o user.o net.o
 	cc client.o user.o net.o -o client
 
-server.o : server.c server.h net.h user.h
+server.o : server.c server.h net.h user.h message.h
 	cc -c server.c
 
 client.o : client.c net.h user.h

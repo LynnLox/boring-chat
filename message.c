@@ -5,6 +5,8 @@
 #define USER_MSG 1
 #define CLIENT_MSG 0
 
+#define SUB_MAX_LEN 10
+
 enum client_msg_sub map_enum_str(char *msg, int msg_len, int *cur_len)
 {
 	char sub_str[SUB_MAX_LEN];
@@ -29,7 +31,7 @@ int pack_client_msg(char *msg, int msg_len, char *src, int src_len, enum client_
 		case CNAME:
 			strcpy(msg + 1, "cname:");
 			break;
-		case default:
+		default:
 			return -1;
 	}
 
@@ -64,4 +66,34 @@ int unpack_client_msg(char *msg, int msg_len, char *dst, int dst_len)
 	if (dst[j] != '\0')
 		dst[j] = '\0';
 	return 0;	
+}
+
+int pack_usr_msg(char *msg, char *src, char *name, int msg_len)
+{
+	if (strlen(name) + strlen(src) + 2 > msg_len)
+		return -1;
+
+	msg[0] = '@';
+	int i;
+	for (i = 0; name[i] != '\0'; ++i)
+		msg[i + 1] = name[i];
+	msg[++i] = ':';
+	for (int j = 0; src[j] != '\0'; ++j)
+		msg[++i] = src[j];
+	msg[++i] = '\0';
+
+	return 0;
+}
+
+void unpack_usr_msg(char *msg, char *dst, char *name)
+{
+	int i;
+	for (i = 0; msg[i + 1] != ':'; ++i)
+		name[i] = msg[i + 1];
+	name[i++] = '\0';
+
+	int j;
+	for (j = 0, i = i + 1; msg[i] != '\0'; ++j, ++i)
+		dst[j] = msg[i];
+	dst[j] = '\0';
 }
