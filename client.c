@@ -28,7 +28,8 @@ void login_form(char *name)
 
 char *login(const int sockfd)
 {
-	char name[VAL_LEN], res[VAL_LEN], msg[CLI_MSG_LEN];
+	char *name = malloc(sizeof(char) * VAL_LEN);
+	char res[VAL_LEN], msg[CLI_MSG_LEN];
 	int flag = 1;
 	while (flag) {
 		login_form(name);
@@ -80,7 +81,6 @@ int main(int argc, char **argv)
 		fgets(buf, CON_LEN, stdin);
 		trim_str(buf);
 		pack_usr_msg(msg, buf, name);
-		printf("%s\n", msg);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
 			perror("send");
 			exit(1);
@@ -88,6 +88,7 @@ int main(int argc, char **argv)
 		bzero(buf, CON_LEN);
 		bzero(msg, USR_MSG_LEN);
 	}
+	free(name);
 
 	return 0;
 }
