@@ -78,7 +78,9 @@ int main(int argc, char **argv)
 	while (1) {
 		printf("> ");
 		fgets(buf, CON_LEN, stdin);
+		trim_str(buf);
 		pack_usr_msg(msg, buf, name);
+		printf("%s\n", msg);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
 			perror("send");
 			exit(1);

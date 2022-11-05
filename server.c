@@ -1,6 +1,7 @@
 #include "net.h"
 #include "user.h"
 #include "message.h"
+#include "server.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,50 @@ void rem_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int i)
 {
 	pfds[i] = pfds[*fd_cnt - 1];
 	(*fd_cnt)--;
+}
+
+void handle_msg(char *msg, const int senderfd)
+{
+	if (type_msg(msg))
+		handle_client_msg(msg, senderfd);
+	else
+		handle_usr_msg(msg);
+}
+
+void handle_client_msg(char *msg, const int senderfd)
+{
+	char val[VAL_LEN];
+	enum client_msg_sub sub = unpack_client_msg(msg, val);
+	switch (sub) {
+		case CNAME:
+			int status = add_user(val);
+			char res[VAL_LEN];
+			if (!status)
+				strcpy(res, "success");
+			else if (status == -1)
+				strcpy(res, "capfull");
+			else if (status == -2)
+				strcpy(res, "long");
+			else if (status == -3)
+				strcpy(res, "exists");
+			trim_str(res);
+			pack_client_msg(msg, res, CNAME);
+			if (send(senderfd, msg, strlen(msg), 0) == -1)
+				perror("send");
+			break;
+	}
+}
+
+void handle_usr_msg(char *msg)
+{
+	char name[VAL_LEN], con[CON_LEN];
+	unpack_usr_msg(msg, con, name);
+
+	char usr_msg[USR_MSG_LEN];
+	int name_len = strlen(name);
+	strcpy(usr_msg, name);
+	strcpy(usr_msg + name_len, ": ");
+	strcpy(usr_msg + name_len + 2, con);
 }
 
 int main()
@@ -89,23 +134,7 @@ int main()
 						printf("pollserver: connection closed by socket %d\n", senderfd);
 						close(pfds[i].fd);
 					} else {
-						printf("%s\n", msg);
-						unpack_client_msg(msg, buf);
-						printf("%s\n", buf);
-						int status = add_user(buf);
-						char res[VAL_LEN];
-						if (!status)
-							strcpy(res, "success");
-						else if (status == -1)
-							strcpy(res, "capfull");
-						else if (status == -2)
-							strcpy(res, "long");
-						else if (status == -3)
-							strcpy(res, "exists");
-						trim_str(res);
-						pack_client_msg(msg, res, CNAME);
-						if (send(senderfd, msg, strlen(msg), 0) == -1)
-							perror("send");
+						handle_msg(msg, senderfd);
 					}
 				}
 			}
