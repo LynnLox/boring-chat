@@ -42,6 +42,7 @@ enum client_msg_sub {
 
 void trim_str(char *str);
 enum client_msg_sub map_enum_str(char *msg, int *cur_len);
+int type_msg (char *msg);
 int pack_client_msg(char *msg, char *src, enum client_msg_sub sub);
 int unpack_client_msg(char *msg, char *dst);
 int pack_usr_msg(char *msg, char *src, char *name);

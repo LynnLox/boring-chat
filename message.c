@@ -32,6 +32,12 @@ enum client_msg_sub map_enum_str(char *msg, int *cur_len)
 	return FAILURE;
 }
 
+/* 1 for client msg, 0 for usr msg */
+int type_msg(char *msg)
+{
+	return msg[0] == '!';
+}
+
 int pack_client_msg(char *msg, char *src, enum client_msg_sub sub)
 {
 	msg[0] = '!';
