@@ -7,8 +7,8 @@
 
 void add_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int newfd);
 void rem_pfd(struct pollfd *pfds[], int *fd_cnt, int *fd_size, int i);
-void handle_msg(char *msg, const int senderfd);
+void handle_msg(char *msg, const int senderfd, struct pollfd *pfds, const int fd_cnt);
 void handle_client_msg(char *msg, const int senderfd);
-void handle_usr_msg(char *msg);
+void handle_usr_msg(char *msg, const int senderfd, struct pollfd *pfds, const int fd_cnt);
 
 #endif

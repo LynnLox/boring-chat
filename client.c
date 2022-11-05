@@ -87,6 +87,11 @@ int main(int argc, char **argv)
 		}
 		bzero(buf, CON_LEN);
 		bzero(msg, USR_MSG_LEN);
+		if (recv(sockfd, msg, USR_MSG_LEN, 0) == -1) {
+			perror("recv");
+			exit(1);
+		}
+		bzero(msg, USR_MSG_LEN);
 	}
 	free(name);
 
