@@ -56,6 +56,18 @@ char *login(const int sockfd)
 	return name;
 }
 
+void format_usr_msg(char *msg, char *dst)
+{
+	char name[VAL_LEN], con[CON_LEN];
+	unpack_usr_msg(msg, con, name);
+
+	int name_len = strlen(name);
+	strcpy(dst, name);
+	strcpy(dst + name_len, ": ");
+	strcpy(dst + name_len + 2, con);
+}
+
+
 int main(int argc, char **argv)
 {
 	if (argc != 2) {
@@ -91,6 +103,9 @@ int main(int argc, char **argv)
 			perror("recv");
 			exit(1);
 		}
+		format_usr_msg(msg, buf);
+		printf("%s\n", buf);
+		bzero(buf, strlen(buf));
 		bzero(msg, USR_MSG_LEN);
 	}
 	free(name);
