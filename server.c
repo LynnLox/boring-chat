@@ -73,16 +73,6 @@ void handle_client_msg(char *msg, const int senderfd)
 
 void handle_usr_msg(char *msg, const int senderfd, struct pollfd *pfds, const int fd_cnt)
 {
-	char name[VAL_LEN], con[CON_LEN];
-	unpack_usr_msg(msg, con, name);
-
-	char usr_msg[USR_MSG_LEN];
-	int name_len = strlen(name);
-	strcpy(usr_msg, name);
-	strcpy(usr_msg + name_len, ": ");
-	strcpy(usr_msg + name_len + 2, con);
-	printf("%s\n", usr_msg); 
-
 	for (int i = 1; i < fd_cnt; ++i)
 		if (pfds[i].fd != senderfd)
 			if (send(pfds[i].fd, msg, strlen(msg), 0) == -1)
