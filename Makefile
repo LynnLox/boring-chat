@@ -19,7 +19,7 @@ net.o : net.c net.h
 message.o : message.c message.h
 	cc -c message.c
 
-ui.o : ui.c ui.h
+ui.o : ui.c ui.h message.h
 	cc -c ui.c
 
 clean :

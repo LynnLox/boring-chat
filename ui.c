@@ -1,6 +1,8 @@
 #include "ui.h"
+#include "message.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <ncurses/ncurses.h>
 
 extern WINDOW *main_win, *msg_win_box, *msg_win, *ip_win_box, *ip_win, *login_win;
@@ -68,4 +70,28 @@ void print_msg(char *name, char *buf)
 	wprintw(msg_win, buf);
 	wprintw(msg_win, "\n\n");
 	wrefresh(msg_win);
+}
+
+void get_ip(char *buf, int len)
+{
+	bzero(buf, strlen(buf));
+	int i = 0, ch;
+	while ((ch = getch()) != '\n' && i < len) {
+		if (ch == KEY_BACKSPACE || ch == KEY_DC || ch == '\b' || ch == KEY_LEFT) {
+			if (i) {
+				wprintw(ip_win, "\b \b\0");
+				buf[--i] = '\0';
+				wrefresh(ip_win);
+			} else {
+				wprintw(ip_win, "\b \0");
+			}
+		} else {
+			strcat(buf, (char*)&ch);
+			++i;
+			wprintw(ip_win, (char*)&ch);
+			wrefresh(ip_win);
+		}
+	}
+	buf[i] = '\0';
+	trim_str(buf);
 }

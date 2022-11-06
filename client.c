@@ -33,12 +33,7 @@ void login_form()
 	wprintw(ip_win, login_prompt);
 	wmove(ip_win, 0, strlen(login_prompt));
 	wrefresh(ip_win);
-	int i = 0;
-	while ((name[i++] = getch()) != '\n') {
-		wprintw(ip_win, (char*)&name[i - 1]);
-		wrefresh(ip_win);
-	}
-	name[i++] = '\0';
+	get_ip(name, VAL_LEN);
 	wclear(ip_win);
 	wrefresh(ip_win);
 }
@@ -87,26 +82,7 @@ void thread_send(void *sfd)
 	wmove(ip_win, 0, 0);
 	wrefresh(ip_win);
 	while (1) {
-		int i = 0;
-		int ch;
-		while ((ch = getch()) != '\n' && i < CON_LEN) {
-			if (ch == KEY_BACKSPACE || ch == KEY_DC || ch == '\b' || ch == KEY_LEFT) {
-				if (i) {
-					wprintw(ip_win, "\b \b\0");
-					buf[--i] = '\0';
-					wrefresh(ip_win);
-				} else {
-					wprintw(ip_win, "\b \0");
-				}
-			} else {
-				strcat(buf, (char*)&ch);
-				++i;
-				wprintw(ip_win, (char*)&ch);
-				wrefresh(ip_win);
-			}
-		}
-		buf[i] = '\0';
-		trim_str(buf);
+		get_ip(buf, CON_LEN);
 		if (!strcmp(buf, "quit()")) {
 			flag = 0;
 			exit(1);
