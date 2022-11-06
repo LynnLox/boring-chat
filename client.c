@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -74,7 +75,6 @@ void thread_send(void *sfd)
 	int sockfd = *((int*)sfd);
 	char buf[CON_LEN], msg[USR_MSG_LEN];
 	while (1) {
-		printf("> ");
 		fgets(buf, CON_LEN, stdin);
 		trim_str(buf);
 		pack_usr_msg(msg, buf, name);
@@ -133,6 +133,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	while (1) {}
+
+	close(sockfd);
 
 	return 0;
 }
