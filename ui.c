@@ -30,10 +30,6 @@ void init_msg_win()
 {
 	msg_win_box = subwin(main_win, LINES * 0.8, COLS, 0, 0);
 	box(msg_win_box, 0, 0);
-	mvwaddch(msg_win_box, 0, COLS * 0.5 - 6, ACS_RTEE);
-	mvwaddstr(msg_win_box, 0, COLS * 0.5 - 5, "Boring Chat");
-	mvwaddch(msg_win_box, 0, COLS * 0.5 + 4, ACS_LTEE);
-	wrefresh(msg_win_box);
 	
 	msg_win = subwin(main_win, LINES * 0.8 - 2, COLS - 2, 1, 1);
 	scrollok(msg_win, TRUE);
