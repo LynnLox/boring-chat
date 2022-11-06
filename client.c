@@ -80,17 +80,6 @@ void login(const int sockfd)
 	wrefresh(msg_win);
 }
 
-void format_usr_msg(char *msg, char *dst)
-{
-	char con[CON_LEN];
-	unpack_usr_msg(msg, con, name);
-
-	int name_len = strlen(name);
-	strcpy(dst, name);
-	strcpy(dst + name_len, ": ");
-	strcpy(dst + name_len + 2, con);
-}
-
 void thread_send(void *sfd)
 {
 	int sockfd = *((int*)sfd);
@@ -114,9 +103,7 @@ void thread_send(void *sfd)
 			perror("send");
 			exit(1);
 		}
-		format_usr_msg(msg, buf);
-		wprintw(msg_win, buf);
-		wrefresh(msg_win);
+		print_msg(name, buf);
 		bzero(buf, CON_LEN);
 		bzero(msg, USR_MSG_LEN);
 		wmove(ip_win, 0, 0);
@@ -129,14 +116,14 @@ void thread_recv(void *sfd)
 {
 	int sockfd = *((int*)sfd);
 	char buf[USR_MSG_LEN], msg[USR_MSG_LEN];
+	char sender_name[VAL_LEN];
 	while (1) {
 		if (recv(sockfd, msg, USR_MSG_LEN, 0) == -1) {
 			perror("recv");
 			exit(1);
 		}
-		format_usr_msg(msg, buf);
-		wprintw(msg_win, buf);
-		wrefresh(msg_win);
+		unpack_usr_msg(msg, buf, sender_name);
+		print_msg(sender_name, buf);
 		bzero(buf, strlen(buf));
 		bzero(msg, USR_MSG_LEN);
 	}

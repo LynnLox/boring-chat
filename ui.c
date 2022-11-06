@@ -58,3 +58,14 @@ void init_err_scr(int err, char *title, char *subtitle, int should_exit)
 		exit(1);
 	}
 }
+
+void print_msg(char *name, char *buf)
+{
+	wattron(msg_win, A_BOLD);
+	wprintw(msg_win, name);
+	wprintw(msg_win, "\n");
+	wattroff(msg_win, A_BOLD);
+	wprintw(msg_win, buf);
+	wprintw(msg_win, "\n\n");
+	wrefresh(msg_win);
+}
