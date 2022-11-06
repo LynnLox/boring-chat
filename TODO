@@ -1,0 +1,26 @@
+For the time being (6th November, 2022), I am done with the project, and no
+major (and maybe even minor) changes will be made in the immediate future
+(unless my fickle mind changes).
+
+For anyone who comes across this project (including a future me), the following
+are what can be implemented:
+
+1. The "name is too long" error does not need to come from the server. This is
+something that the client can compute by itself before even passing the name to
+the server. So take care of it on the client-side.
+
+2. It would be nice to have a header, like "boring chat".
+
+3. Experiment with different colour combinations, instead of submitting to the
+terminal's defaults.
+
+4. Add special server commands like in Discord.
+
+5. Let the user specify the port in addition to the address as the 2nd
+command-line argument, like telnet does, instead of hardcoding it to 9034.
+
+6. Implement signals, such as for Crtl-C and something in Beej' guide that I
+have now forgotten.
+
+7. Come up with a better name. I used a grand total of 1.24 brain cells in
+deciding this one.
