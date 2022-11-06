@@ -84,11 +84,12 @@ void thread_send(void *sfd)
 	while (1) {
 		get_ip(buf, CON_LEN);
 		if (!strcmp(buf, "quit()")) {
-			flag = 0;
+			endwin();
 			exit(1);
 		}
 		pack_usr_msg(msg, buf, name);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
+			endwin();
 			perror("send");
 			exit(1);
 		}
@@ -108,6 +109,7 @@ void thread_recv(void *sfd)
 	char sender_name[VAL_LEN];
 	while (1) {
 		if (recv(sockfd, msg, USR_MSG_LEN, 0) == -1) {
+			endwin();
 			perror("recv");
 			exit(1);
 		}
@@ -140,16 +142,18 @@ int main(int argc, char **argv)
 
 	pthread_t t_send, t_recv;
 	if (pthread_create(&t_send, NULL, (void *)thread_send, (void*)&sockfd)) {
+		endwin();
 		fprintf(stderr, "Cannot create the send thread.\n");
 		return 1;
 	}
 	if (pthread_create(&t_recv, NULL, (void *)thread_recv, (void*)&sockfd)) {
+		endwin();
 		fprintf(stderr, "Cannot create the recv thread.\n");
 		return 1;
 	}
 	while (1)
 		if (!flag)
-			break;
+			endwin();
 
 	close(sockfd);
 
