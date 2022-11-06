@@ -114,6 +114,9 @@ void thread_send(void *sfd)
 			perror("send");
 			exit(1);
 		}
+		format_usr_msg(msg, buf);
+		wprintw(msg_win, buf);
+		wrefresh(msg_win);
 		bzero(buf, CON_LEN);
 		bzero(msg, USR_MSG_LEN);
 		wmove(ip_win, 0, 0);
@@ -132,7 +135,8 @@ void thread_recv(void *sfd)
 			exit(1);
 		}
 		format_usr_msg(msg, buf);
-		printf("%s\n", buf);
+		wprintw(msg_win, buf);
+		wrefresh(msg_win);
 		bzero(buf, strlen(buf));
 		bzero(msg, USR_MSG_LEN);
 	}
