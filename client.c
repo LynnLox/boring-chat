@@ -2,6 +2,7 @@
 #include "net.h"
 #include "user.h"
 #include "message.h"
+#include "ui.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <ncurses/ncurses.h>
 
 #define PORT "9034"
 #define CON_LEN 250 /* content length, where content is what the user types */
@@ -23,12 +25,22 @@
 
 char name[VAL_LEN];
 unsigned short flag = 1;
+WINDOW *main_win, *msg_win, *msg_win_box, *ip_win, *ip_win_box, *login_win;
 
-/* calling this disgrace a "form" is a stretch, but I am bad with names */
 void login_form()
 {
-	printf("Enter preferred alias: ");
-	fgets(name, VAL_LEN, stdin);
+	char *login_prompt = "Enter preferred alias: ";
+	wprintw(ip_win, login_prompt);
+	wmove(ip_win, 0, strlen(login_prompt));
+	wrefresh(ip_win);
+	int i = 0;
+	while ((name[i++] = getch()) != '\n') {
+		wprintw(ip_win, (char*)&name[i - 1]);
+		wrefresh(ip_win);
+	}
+	name[i++] = '\0';
+	wclear(ip_win);
+	wrefresh(ip_win);
 }
 
 void login(const int sockfd)
@@ -36,8 +48,9 @@ void login(const int sockfd)
 	bzero(name, strlen(name));
 	char res[VAL_LEN], msg[CLI_MSG_LEN];
 	int flag = 1;
+	char res_msg[CON_LEN];
 	while (flag) {
-		login_form();
+		login_form(name);
 		trim_str(name);
 		pack_client_msg(msg, name, CNAME);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
@@ -51,13 +64,20 @@ void login(const int sockfd)
 		}
 		unpack_client_msg(msg, res);
 		if (!strcmp(res, "exists\n"))
-			fprintf(stderr, "Sorry, the alias is taken. Please choose another.\n\n");
+			strcpy(res_msg, "Sorry, the alias is taken. Please choose another.");
 		else if (!strcmp(res, "long\n"))
-			fprintf(stderr, "The alias is too long. Please choose a shorter one.\n\n");
+			strcpy(res_msg, "This alias is too long. Choose a shorter one.");
 		else
 			flag = 0;
+		mvwaddstr(msg_win, 0, 0, res_msg);
+		wrefresh(msg_win);
 	}
-	printf("The alias is assigned.\n\n");
+	strcpy(res_msg, "The name has been assigned. Press a key to enter chat.");
+	mvwaddstr(msg_win, 0, 0, res_msg);
+	wrefresh(msg_win);
+	getch();
+	wclear(msg_win);
+	wrefresh(msg_win);
 }
 
 void format_usr_msg(char *msg, char *dst)
@@ -115,16 +135,16 @@ int main(int argc, char **argv)
 		fprintf(stderr, "There must be 2 arguments (only)\n");
 		exit(1);
 	}
+
+	init_ui();
+
 	struct addrinfo *list = init_addrinfos(-1, AF_UNSPEC, SOCK_STREAM, argv[1], PORT);
 	int sockfd;
 	struct addrinfo *addr = bind_socket(list, &sockfd, 0);
-	if (sockfd == -1) {
-		fprintf(stderr, "No valid addrinfo struct\n");
-		exit(1);
-	} else if (!addr) {
-		fprintf(stderr, "Socket could not connect to server\n");
-		exit(1);
-	}
+	if (sockfd == -1)
+		init_err_scr(sockfd, "Connection Failed", "No valid addrinfo struct", 1);
+	else if (!addr)
+		init_err_scr(1, "Connection Failed", "Socket could not connect to server", 1);
 
 	login(sockfd);
 

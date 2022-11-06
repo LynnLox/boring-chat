@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ncurses/ncurses.h>
 
-WINDOW *main_win, *msg_win_box, *msg_win, *ip_win_box, *ip_win;
+extern WINDOW *main_win, *msg_win_box, *msg_win, *ip_win_box, *ip_win, *login_win;
 
 void init_ui()
 {
