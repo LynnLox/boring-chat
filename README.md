@@ -14,7 +14,9 @@ Its only external dependency is ncurses, which is available on all major distrib
 
 2. Clone the repository: hit the "clone" button above, copy the link, then do:
     > cd /wherever/on/your/system
+    
     > git clone [link you copied]
+    
     and hit ENTER
 
 3. To build the server, type:
