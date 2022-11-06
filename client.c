@@ -19,20 +19,22 @@
 #define USR_MSG_LEN (CON_LEN + PAD_LEN + VAL_LEN) /*length of user messages */
 #define CLI_MSG_LEN (SUB_LEN + PAD_LEN + VAL_LEN) /* length of client messages */
 
+char name[VAL_LEN];
+
 /* calling this disgrace a "form" is a stretch, but I am bad with names */
-void login_form(char *name)
+void login_form()
 {
 	printf("Enter preferred alias: ");
 	fgets(name, VAL_LEN, stdin);
 }
 
-char *login(const int sockfd)
+void login(const int sockfd)
 {
-	char *name = malloc(sizeof(char) * VAL_LEN);
+	bzero(name, strlen(name));
 	char res[VAL_LEN], msg[CLI_MSG_LEN];
 	int flag = 1;
 	while (flag) {
-		login_form(name);
+		login_form();
 		trim_str(name);
 		pack_client_msg(msg, name, CNAME);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
@@ -53,12 +55,11 @@ char *login(const int sockfd)
 			flag = 0;
 	}
 	printf("The alias is assigned.\n\n");
-	return name;
 }
 
 void format_usr_msg(char *msg, char *dst)
 {
-	char name[VAL_LEN], con[CON_LEN];
+	char con[CON_LEN];
 	unpack_usr_msg(msg, con, name);
 
 	int name_len = strlen(name);
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	
-	char *name = login(sockfd);
+	login(sockfd);
 
 	char buf[CON_LEN], msg[USR_MSG_LEN];
 	while (1) {
@@ -108,7 +109,6 @@ int main(int argc, char **argv)
 		bzero(buf, strlen(buf));
 		bzero(msg, USR_MSG_LEN);
 	}
-	free(name);
 
 	return 0;
 }

@@ -3,7 +3,7 @@
 #ifndef CLIENT
 #define CLIENT
 
-void login_form(char *name);
-char *login(const int sockfd);
+void login_form();
+void login(const int sockfd);
 
 #endif
