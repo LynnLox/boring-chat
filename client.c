@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #define PORT "9034"
 #define CON_LEN 250 /* content length, where content is what the user types */
@@ -68,6 +69,40 @@ void format_usr_msg(char *msg, char *dst)
 	strcpy(dst + name_len + 2, con);
 }
 
+void thread_send(void *sfd)
+{
+	int sockfd = *((int*)sfd);
+	char buf[CON_LEN], msg[USR_MSG_LEN];
+	while (1) {
+		printf("> ");
+		fgets(buf, CON_LEN, stdin);
+		trim_str(buf);
+		pack_usr_msg(msg, buf, name);
+		if (send(sockfd, msg, strlen(msg), 0) == -1) {
+			perror("send");
+			exit(1);
+		}
+		bzero(buf, CON_LEN);
+		bzero(msg, USR_MSG_LEN);
+	}
+}
+
+void thread_recv(void *sfd)
+{
+	int sockfd = *((int*)sfd);
+	char buf[USR_MSG_LEN], msg[USR_MSG_LEN];
+	while (1) {
+		if (recv(sockfd, msg, USR_MSG_LEN, 0) == -1) {
+			perror("recv");
+			exit(1);
+		}
+		format_usr_msg(msg, buf);
+		printf("%s\n", buf);
+		bzero(buf, strlen(buf));
+		bzero(msg, USR_MSG_LEN);
+	}
+}
+
 
 int main(int argc, char **argv)
 {
@@ -85,30 +120,19 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Socket could not connect to server\n");
 		exit(1);
 	}
-	
+
 	login(sockfd);
 
-	char buf[CON_LEN], msg[USR_MSG_LEN];
-	while (1) {
-		printf("> ");
-		fgets(buf, CON_LEN, stdin);
-		trim_str(buf);
-		pack_usr_msg(msg, buf, name);
-		if (send(sockfd, msg, strlen(msg), 0) == -1) {
-			perror("send");
-			exit(1);
-		}
-		bzero(buf, CON_LEN);
-		bzero(msg, USR_MSG_LEN);
-		if (recv(sockfd, msg, USR_MSG_LEN, 0) == -1) {
-			perror("recv");
-			exit(1);
-		}
-		format_usr_msg(msg, buf);
-		printf("%s\n", buf);
-		bzero(buf, strlen(buf));
-		bzero(msg, USR_MSG_LEN);
+	pthread_t t_send, t_recv;
+	if (pthread_create(&t_send, NULL, (void *)thread_send, (void*)&sockfd)) {
+		fprintf(stderr, "Cannot create the send thread.\n");
+		return 1;
 	}
+	if (pthread_create(&t_recv, NULL, (void *)thread_recv, (void*)&sockfd)) {
+		fprintf(stderr, "Cannot create the recv thread.\n");
+		return 1;
+	}
+	while (1) {}
 
 	return 0;
 }

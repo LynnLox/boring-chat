@@ -8,7 +8,7 @@ server.o : server.c server.h net.h user.h message.h
 	cc -c server.c
 
 client.o : client.c net.h user.h client.h message.h
-	cc -c client.c
+	cc -c client.c -lpthread
 
 user.o : user.c user.h
 	cc -c user.c
