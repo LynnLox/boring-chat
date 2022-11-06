@@ -95,8 +95,15 @@ void thread_send(void *sfd)
 {
 	int sockfd = *((int*)sfd);
 	char buf[CON_LEN], msg[USR_MSG_LEN];
+	wmove(ip_win, 0, 0);
+	wrefresh(ip_win);
 	while (1) {
-		fgets(buf, CON_LEN, stdin);
+		int i = 0;
+		while ((buf[i++] = getch()) != '\n' && i < CON_LEN) {
+			wprintw(ip_win, (char*)&buf[i - 1]);
+			wrefresh(ip_win);
+		}
+		buf[i++] = '\0';
 		trim_str(buf);
 		if (!strcmp(buf, "quit()")) {
 			flag = 0;
@@ -109,6 +116,9 @@ void thread_send(void *sfd)
 		}
 		bzero(buf, CON_LEN);
 		bzero(msg, USR_MSG_LEN);
+		wmove(ip_win, 0, 0);
+		wclear(ip_win);
+		wrefresh(ip_win);
 	}
 }
 
