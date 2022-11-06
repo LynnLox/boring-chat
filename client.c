@@ -88,11 +88,24 @@ void thread_send(void *sfd)
 	wrefresh(ip_win);
 	while (1) {
 		int i = 0;
-		while ((buf[i++] = getch()) != '\n' && i < CON_LEN) {
-			wprintw(ip_win, (char*)&buf[i - 1]);
-			wrefresh(ip_win);
+		int ch;
+		while ((ch = getch()) != '\n' && i < CON_LEN) {
+			if (ch == KEY_BACKSPACE || ch == KEY_DC || ch == '\b' || ch == KEY_LEFT) {
+				if (i) {
+					wprintw(ip_win, "\b \b\0");
+					buf[--i] = '\0';
+					wrefresh(ip_win);
+				} else {
+					wprintw(ip_win, "\b \0");
+				}
+			} else {
+				strcat(buf, (char*)&ch);
+				++i;
+				wprintw(ip_win, (char*)&ch);
+				wrefresh(ip_win);
+			}
 		}
-		buf[i++] = '\0';
+		buf[i] = '\0';
 		trim_str(buf);
 		if (!strcmp(buf, "quit()")) {
 			flag = 0;
