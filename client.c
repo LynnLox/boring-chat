@@ -22,6 +22,7 @@
 #define CLI_MSG_LEN (SUB_LEN + PAD_LEN + VAL_LEN) /* length of client messages */
 
 char name[VAL_LEN];
+unsigned short flag = 1;
 
 /* calling this disgrace a "form" is a stretch, but I am bad with names */
 void login_form()
@@ -77,6 +78,10 @@ void thread_send(void *sfd)
 	while (1) {
 		fgets(buf, CON_LEN, stdin);
 		trim_str(buf);
+		if (!strcmp(buf, "quit()")) {
+			flag = 0;
+			exit(1);
+		}
 		pack_usr_msg(msg, buf, name);
 		if (send(sockfd, msg, strlen(msg), 0) == -1) {
 			perror("send");
@@ -132,7 +137,9 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Cannot create the recv thread.\n");
 		return 1;
 	}
-	while (1) {}
+	while (1)
+		if (!flag)
+			break;
 
 	close(sockfd);
 
