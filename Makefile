@@ -23,4 +23,4 @@ ui.o : ui.c ui.h message.h
 	cc -c ui.c
 
 clean :
-	rm server.o client.o user.o net.o message.o
+	rm server.o client.o user.o net.o message.o ui.o
