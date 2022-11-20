@@ -10,6 +10,7 @@ Its only external dependency is ncurses, which is available on all major distrib
 
 1. Install ncurses. On Fedora, run:
     > sudo dnf install ncurses
+    
     For other distributions, please refer to the appropriate guide.
 
 2. Clone the repository: hit the "clone" button above, copy the link, then do:
